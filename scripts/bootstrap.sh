@@ -42,7 +42,7 @@ echo ""
 # Get Docker gpg key and add repo
 # the tee command is used to overwrite the file if it already exists
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/docker-archive-keyring.gpg > /dev/null
-add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /dev/null
+add-apt-repository -y "deb [arch=arm64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /dev/null
 echo "Docker repo added."
 
 # Update package list and install full Docker suite
