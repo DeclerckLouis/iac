@@ -4,18 +4,13 @@
   hosts: localhost
   tasks:
     - name: Generate k3s token
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: openssl rand -hex 16 > /etc/rancher/k3s/k3s_token.txt
-      args:
-        warn: no
-        executable: /bin/bash
+
 
     - name: Install k3s 
-      ansible.builtin.shell: 
+      ansible.builtin.command: 
         cmd: curl -sfL https://get.k3s.io | K3s_token=$(cat k3s_token.txt) sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy
-      args:
-        warn: no
-        executable: /bin/bash
 
 # This might not do much since the playbook runs inside a container
     - name: Copy kubeconfig
