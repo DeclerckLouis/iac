@@ -20,50 +20,40 @@ apt-get -y update > /dev/null
 echo "Done."
 echo ""
 
-# Install Python
-echo "Installing python..."
-apt-get -y install python3 > /dev/null
+# Install required packages
+echo "Installing required packages..."
+apt-get -y install curl openssl > /dev/null
 echo "Done."
 echo ""
 
-# Install pip
-echo "Installing python3-pip..."
-apt-get -y install python3-pip > /dev/null
+# Generate the k3s token and save it 
+echo "Generating k3s token..."
+k3s_token_value=$(openssl rand -hex 16) 
+echo $k3s_token_value > $(pwd)/k3s_token.txt
 echo "Done."
 echo ""
 
-# Install Docker
-# Install Docker requirements
-echo "Installing Docker"
-apt-get -y install apt-transport-https ca-certificates curl software-properties-common > /dev/null
-echo "Docker requirements installed."
-echo ""
+# Install k3s
+echo "Setting up kubernetes..."
+curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy 
+echo "K3s installed."
 
-# Get Docker gpg key and add repo
-# the tee command is used to overwrite the file if it already exists
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/docker-archive-keyring.gpg > /dev/null
-echo "deb [arch=arm64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-echo "Docker repo added."
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=arm64
+echo "Variables set."
 
-# Update package list and install full Docker suite
-apt-get -y update > /dev/null
-apt-get -y install docker-* > /dev/null
-echo "Docker installed."
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+echo "Cilium CLI installed."
+
+# Install cilium
+echo "Installing cilium..."
+cilium install --version 1.15.6 --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
+
+
 echo "Done."
 echo ""
-
-# Pull Ansible Docker image
-echo "Pulling Ansible Docker image..."
-docker pull cytopia/ansible:latest
-echo "Done."
-echo ""
-
-# Run Ansible playbook using Docker
-echo "Running Ansible playbook using Docker..."
-# This command mounts the ansible directory in the current directory to the /ansible directory in the container.
-# It also mounts the k3s and kube directories to the container.
-# The playbook is then run using the bootstrap.yaml playbook and the bootstrap inventory file.
-docker run --rm -v $(pwd)/ansible:/ansible -v /etc/rancher/k3s:/etc/rancher/k3s -v ~/.kube:/root/.kube cytopia/ansible:latest ansible-playbook /ansible/playbooks/bootstrap.yaml -i /ansible/inventories/bootstrap.yaml
-echo "Done."
-
 
