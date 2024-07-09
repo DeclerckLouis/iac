@@ -20,7 +20,7 @@
 # This might not do much since the playbook runs inside a container
     - name: Copy kubeconfig
       become: true
-      ansible.builtincopy:
+      ansible.builtin.copy:
         src: /etc/rancher/k3s/k3s.yaml
         dest: ~/.kube/config
         remote_src: true
