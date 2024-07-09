@@ -39,6 +39,18 @@ curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - --cluster-init
 echo "K3s installed."
 
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+echo "Waiting for node to be ready..."
+echo "This may take a few minutes."
+# grepping for nodes that are either at the Ready or NotReady state (it will never be Ready without a CNI )
+while [ $(kubectl get nodes | grep -c "Ready") -lt 1 ]; do
+    sleep 5
+    echo "."
+done
+echo "Node is responding."
+echo ""
+
+echo "Installing Cilium..."
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
 CLI_ARCH=arm64
 echo "Variables set."
@@ -52,8 +64,6 @@ echo "Cilium CLI installed."
 # Install cilium
 echo "Installing cilium..."
 cilium install --version 1.15.6 --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
-
-
 echo "Done."
 echo ""
-
+echo "Please give the node up to 10 minutes to be ready. "
