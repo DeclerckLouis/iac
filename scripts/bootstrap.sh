@@ -39,8 +39,8 @@ apt-get -y install apt-transport-https ca-certificates curl software-properties-
 echo "Docker requirements installed."
 echo ""
 
-# Get Docker repo
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - > /dev/null
+# Get Docker gpg key and add repo
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg > /dev/null
 add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /dev/null
 echo "Docker repo added."
 
