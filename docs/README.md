@@ -2,9 +2,9 @@
 ## Getting started
 ### First Installation
 To setup the project on your local machine, follow these steps:
-| **This has ibky been tested on a Raspberry Pi 4 running Ubuntu Server 22.04** |
+| **This has only been tested on a rpi4 running Ubuntu Server 22.04** |
 1. Clone the repository
-2. 
+2. run the bootstrap.sh script `sudo bash iac/scripts/bootstrap.sh`  
 
 ### Kubernetes
 At the moment, i'm running k3s on a single raspberry pi 4 that's running Ubuntu Server 22.04.
@@ -20,7 +20,7 @@ The following modifications were made to the k3s installation:
 To install k3s, run the following command:
 ```bash
 openssl rand -hex 16 > k3s_token.txt
-curl -sfL https://get.k3s.io | K3s_token=$(cat k3s_token.txt) sh -s - -cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy
+curl -sfL https://get.k3s.io | K3s_token=$(cat k3s_token.txt) sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy
 ```
 
 #### Install cilium
