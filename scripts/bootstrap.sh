@@ -28,7 +28,7 @@ echo ""
 
 # Install pip
 echo "Installing python3-pip..."
-apt-get install python3-pip > /dev/null
+apt-get -y install python3-pip > /dev/null
 echo "Done."
 echo ""
 
