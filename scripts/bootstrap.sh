@@ -7,8 +7,8 @@
 # Test user
 user_type=$(whoami)
 if [ $user_type == "root" ]; then
+    clear
     echo "User is root. Proceeding with installation."
-    echo ""
 else
     echo "Please run this script as root."
     exit 1
@@ -28,14 +28,13 @@ echo ""
 
 # Install pip
 echo "Installing python3-pip..."
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py > /dev/null
-python3 get-pip.py > /dev/null
+apt-get install python3-pip > /dev/null
 echo "Done."
 echo ""
 
 # Install Ansible
 echo "Installing Ansible..."
-python3 -m pip install ansible
+python3 -m pip install ansible > /dev/null
 ansible_version = $(ansible --version)
 echo "Ansible version: $ansible_version"
 echo "Done."
