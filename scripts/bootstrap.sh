@@ -36,7 +36,6 @@ echo ""
 # Install Docker requirements
 echo "Installing Docker"
 apt-get -y install apt-transport-https ca-certificates curl software-properties-common > /dev/null
-apt-get -y install docker.io > /dev/null
 echo "Docker requirements installed."
 echo ""
 
