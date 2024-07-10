@@ -85,6 +85,21 @@ echo "Cilium CLI installed."
 # Install cilium
 cilium install --version 1.15.6 --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
 echo "Cilium installed."
+
+# # enable hubble -> you must install the hubble client on your local machine to use this feature
+# # https://docs.cilium.io/en/latest/gettingstarted/hubble_setup/#hubble-setup
+# echo "Enabling Hubble..."
+# cilium hubble enable --ui
+# while [ $(kubectl get pods -n kube-system | grep -c "cilium-hubble") -lt 1 ]; do
+#     sleep 5
+#     echo "."
+# done
+# echo "Hubble enabled."
+
+# # Port forward hubble ui
+# kubectl port-forward -n kube-system svc/hubble-ui --address 127.0.0.1 12000:80
+# echo "Hubble UI port forwarded to localhost:12000."
+
 echo "Done."
 echo ""
 echo "Please give the node up to 10 minutes to be ready. "
