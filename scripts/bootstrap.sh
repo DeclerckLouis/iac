@@ -35,12 +35,11 @@ echo "Helm installed."
 echo "Done."
 echo ""
 
-# Generate the k3s token and save it 
+# Generate the k3s token 
 echo "Generating k3s token..."
 k3s_token_value=$(openssl rand -hex 16)
 echo "Token generated." 
-echo $k3s_token_value > $(pwd)/k3s_token.txt
-
+echo "Token will be saved to ${USER_HOME}/k3s_token.txt" after k3s installation.
 echo "Done."
 echo ""
 
@@ -48,6 +47,10 @@ echo ""
 echo "Setting up kubernetes..."
 curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy 
 echo "K3s installed."
+
+# Save the k3s token to the user home directory
+echo $k3s_token_value > ${USER_HOME}/.kube/k3s_token.txt
+echo "Token saved to ${USER_HOME}/.kube/k3s_token.txt."
 
 # Add kubeconfig to user home dir
 cp /etc/rancher/k3s/k3s.yaml ${USER_HOME}/.kube/config
