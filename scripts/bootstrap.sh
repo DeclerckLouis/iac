@@ -38,6 +38,12 @@ echo "Setting up kubernetes..."
 curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy 
 echo "K3s installed."
 
+# Add kubeconfig to user home dir
+echo "Copying kubeconfig"
+cp /etc/rancher/k3s/k3s.yaml /home/${USER}/.kube/config
+echo "Kubeconfig copied."
+echo ""
+
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 echo "Waiting for node to be ready..."
