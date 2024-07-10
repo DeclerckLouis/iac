@@ -35,6 +35,8 @@ echo "Helm installed."
 echo "Done."
 echo ""
 
+mkdir ${USER_HOME}/.kube
+
 # Generate the k3s token 
 echo "Generating k3s token..."
 k3s_token_value=$(openssl rand -hex 16)
