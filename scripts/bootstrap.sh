@@ -60,7 +60,7 @@ echo "Kubeconfig copied to home directory of ${SUDO_USER}."
 
 echo "Waiting for node to be ready..."
 echo "This may take a few minutes."
-sleep 20
+sleep 10
 # grepping for nodes that are either at the Ready or NotReady state (it will never be Ready without a CNI )
 while [ $(kubectl get nodes | grep -c "Ready") -lt 1 ]; do
     sleep 5
