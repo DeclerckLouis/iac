@@ -8,6 +8,30 @@
 USER_HOME=$(eval echo ~${SUDO_USER})
 IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
 
+SKIP_CONFIRMATION=false
+
+# Parse command-line arguments
+while getopts ":y" opt; do
+  case ${opt} in
+    y )
+      SKIP_CONFIRMATION=true
+      ;;
+    \? )
+      echo "Usage: bash bootstrap.sh [-y]"
+      echo "Options:"
+        echo "  -y  Skip confirmation"
+      exit 1
+      ;;
+  esac
+done
+
+
+# a confirmation function
+ask_confirmation() {
+    if [ "$SKIP_CONFIRMATION" = false ]; then
+        read -p "Press [ENTER] to continue or Ctrl-c to cancel."
+    fi
+}
 
 # Test user
 if [ $USER == "root" ]; then
@@ -21,12 +45,7 @@ else
 fi
 
 # Ask user if they want to proceed
-read -p "Do you want to proceed with the installation? (y/n): " -n 1 -r
-echo ""
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Exiting."
-    exit 1
-fi
+ask_confirmation
 
 # Check for apt lock files
 if lsof /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/lib/dpkg/lock > /dev/null 2>&1; then
