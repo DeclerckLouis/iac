@@ -15,7 +15,6 @@ if [ $USER == "root" ]; then
     echo "User is ${SUDO_USER} with Admin rights. Running as ${USER}"
     echo "Kubeconfig and token will be saved to ${USER_HOME}."
     echo "IP Address is ${IP_ADDRESS}"
-    echo "Proceeding with installation."
 else
     echo "Please run this script as root."
     exit 1
@@ -35,6 +34,7 @@ if lsof /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/lib/dpkg/lock 
     exit 1
 fi
 
+echo "Proceeding with installation..."
 # Apt update 
 echo "Updating package list..."
 apt-get -y update > /dev/null
