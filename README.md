@@ -5,9 +5,11 @@ This repository contains all the code and documentation for deploying infrastruc
 It's a personal project that i'm working on to learn more about Kubernetes, Terraform, Ansible, and other DevOps / SRE tools. 
 
 ### ToDos
-[ ] Add static IP setup to the bootstrap script
-[ ] Add a script to install k3s and cilium
-[ ] Add a script to install helm
+- [ ] Add static IP setup to the bootstrap script
+- [x] Add a script to install k3s and cilium
+- [x] Add a script to install helm
+- [ ] Add a script to install ArgoCD
+- [ ] 
 
 ### What is used in this project
 Currently, the following tools are used in this project:
