@@ -4,17 +4,34 @@
 # This script is intended to be run on the master node.
 # It has only been tested on a raspberry pi 4 running ubuntu 22.04.
 
-# Set user home directory
+# Set some base variables
 USER_HOME=$(eval echo ~${SUDO_USER})
+IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
+
 
 # Test user
 if [ $USER == "root" ]; then
     clear
     echo "User is ${SUDO_USER} with Admin rights. Running as ${USER}"
     echo "Kubeconfig and token will be saved to ${USER_HOME}."
+    echo "IP Address is ${IP_ADDRESS}"
     echo "Proceeding with installation."
 else
     echo "Please run this script as root."
+    exit 1
+fi
+
+# Ask user if they want to proceed
+read -p "Do you want to proceed with the installation? (y/n): " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Exiting."
+    exit 1
+fi
+
+# Check for apt lock files
+if lsof /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/lib/dpkg/lock > /dev/null 2>&1; then
+    echo "apt is busy. Please try again later."
     exit 1
 fi
 
