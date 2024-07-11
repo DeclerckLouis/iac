@@ -24,7 +24,9 @@ network:
     eth0:
       dhcp4: false
       addresses: [your_static_ip/24]
-      gateway4: your_gateway
+      routes: 
+        - to: default
+          via:   your_gateway
       nameservers:
         addresses: [your_dns]
   version: 2
