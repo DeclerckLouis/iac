@@ -79,6 +79,7 @@ mkdir ${USER_HOME}/.kube
 chown -R ${SUDO_USER}:${SUDO_USER} ${USER_HOME}/.kube
 chmod 755 ${USER_HOME}/.kube
 echo "Done."
+echo ""
 
 # Generate the k3s token 
 echo "Generating k3s token..."
