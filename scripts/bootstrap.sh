@@ -29,7 +29,9 @@ done
 # a confirmation function
 ask_confirmation() {
     if [ "$SKIP_CONFIRMATION" = false ]; then
+        echo ""
         read -p "Press [ENTER] to continue or Ctrl-c to cancel."
+        echo ""
     fi
 }
 
@@ -65,6 +67,7 @@ echo "Installing required packages..."
 apt-get -y install curl openssl > /dev/null
 echo "Apt packages installed."
 
+echo ""
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 echo "Helm installed."
 
@@ -99,7 +102,7 @@ echo "This may take a few minutes."
 sleep 10
 # grepping for nodes that are either at the Ready or NotReady state (it will never be Ready without a CNI )
 while [ $(kubectl get nodes | grep -c "Ready") -lt 1 ]; do
-    sleep 5
+    sleep 10
     echo "."
 done
 echo "Node is responding."
