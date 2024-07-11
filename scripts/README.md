@@ -7,6 +7,38 @@ This script will download and install helm, k3s and cilium on a Raspberry Pi 4 r
 It requires a working network connection (preferably with a static IP address).  
 After running the script, give the machine a bit of time to start all the services. (this can take up to 10 minutes).  
 
+### Pre-requisites
+**IMPORTANT**: Some pre-requisites are required (or recommended) before running the script:
+- The machine should have a static IP address.  
+```yaml
+network:
+  ethernets:
+    eth0:
+      dhcp4: false
+      addresses: [your_static_ip/24]
+      routes: 
+        - to: default
+          via:   your_gateway
+      nameservers:
+        addresses: [your_dns]
+  version: 2
+```
+
+- Swap should be disabled 
+```bash	
+# Disable swap
+sudo swapoff -a
+sudo sed -i '/swap/d' /etc/fstab
+sudo reboot now
+```
+
+- Cgroups should be enabled
+```bash
+# Cgroup setup
+sudo echo "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" >> /boot/firmware/cmdline.txt
+sudo reboot now
+```
+
 ### Usage
 To run the script, execute the following commands on the Raspberry Pi:
 ```bash
