@@ -16,6 +16,20 @@ The following modifications were made to the k3s installation:
 - The kubeconfig file was set to be readable by all users. **This is a security risk**.  It's only done for the sake of simplicity.  
   In a production environment, the kubeconfig file should be readable only by the user that's running the k3s service.
 
+#### RPI Network Configuration
+The network configuration for the rpi4 is as follows:
+```yaml
+network:
+  ethernets:
+    eth0:
+      dhcp4: false
+      addresses: [your_static_ip/24]
+      gateway4: your_gateway
+      nameservers:
+        addresses: [your_dns]
+  version: 2
+```
+
 #### Installing k3s
 To install k3s, run the following command:
 ```bash
