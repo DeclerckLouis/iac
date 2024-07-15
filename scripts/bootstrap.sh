@@ -149,7 +149,7 @@ echo "Installing Cilium..."
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=
+CLI_ARCH=amd64
 if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
 echo "Variables set."
 
