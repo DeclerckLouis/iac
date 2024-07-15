@@ -4,6 +4,8 @@
 # This script is intended to be run on the master node.
 # It has only been tested on a raspberry pi 4 running ubuntu 22.04.
 
+############################################ VARIABLES & FUNCTIONS ############################################
+
 # Set some base variables
 USER_HOME=$(eval echo ~${SUDO_USER})
 IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
@@ -35,6 +37,8 @@ ask_confirmation() {
     fi
 }
 
+############################################ CHECKS ############################################
+
 # Test user
 if [ $USER == "root" ]; then
     clear
@@ -55,6 +59,21 @@ if lsof /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/lib/dpkg/lock 
     exit 1
 fi
 
+# Create .kube dir in user home if it doesn't exist
+echo "Creating kube directory in ${USER_HOME}..."
+if [ ! -d "${USER_HOME}/.kube" ]; then
+    mkdir ${USER_HOME}/.kube
+    chown -R ${SUDO_USER}:${SUDO_USER} ${USER_HOME}/.kube
+    chmod 755 ${USER_HOME}/.kube
+    echo "Directory created."
+else
+    echo "Directory already exists."
+fi
+echo "Done."
+echo ""
+
+############################################ DEPENDENCIES ############################################
+
 echo "Proceeding with installation..."
 # Apt update 
 echo "Updating package list..."
@@ -74,12 +93,8 @@ echo "Helm installed."
 echo "Done."
 echo ""
 
-echo "Creating kube directory..."	
-mkdir ${USER_HOME}/.kube
-chown -R ${SUDO_USER}:${SUDO_USER} ${USER_HOME}/.kube
-chmod 755 ${USER_HOME}/.kube
-echo "Done."
-echo ""
+
+############################################ K3S ############################################
 
 # Generate the k3s token 
 echo "Generating k3s token..."
@@ -91,7 +106,15 @@ echo ""
 
 # Install k3s
 echo "Setting up kubernetes..."
-curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy 
+curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - \
+    --write-kubeconfig-mode 644 \
+    --flannel-backend=none \
+    --disable-kube-proxy \
+    --disable servicelb \
+    --disable-network-policy \
+    --disable=traefik \
+    --cluster-init \
+
 echo "K3s installed."
 
 # Save the k3s token to the user home directory
@@ -114,23 +137,39 @@ echo "Node is responding."
 echo "Done."
 echo ""
 
+############################################ CILIUM ############################################
 
 echo "Installing Cilium..."
 # Set kubeconfig for cilium installation
+# The following can be done with helm charts as well
+# helm repo add cilium https://helm.cilium.io/
+# helm repo update
+# helm install cilium cilium/cilium
+# helm upgrade cilium cilium/cilium
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=arm64
+CLI_ARCH=
+if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
 echo "Variables set."
 
+#Download
 curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum 
-sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+# Check sha256sum
+sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+# Unpack in /usr/local/bin and remove the tarball
+tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 echo "Cilium CLI installed."
 
-# Install cilium
-cilium install --version 1.15.6 --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
+# Install cilium 
+# CURRENT CILIUM VERSION: 1.15.7 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
+cilium install \
+  --version 1.15.7 \
+  --set k8sServiceHost=${IP_ADDRESS} \
+  --set k8sServicePort=6443 \
+  --set kubeProxyReplacement=true \
+  --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
 echo "Cilium installed."
 
 # # enable hubble -> you must install the hubble client on your local machine to use this feature
