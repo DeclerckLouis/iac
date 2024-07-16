@@ -17,7 +17,7 @@ mkcert '*.cilium.rocks'
 ```
 
 <u><small>Output:</small></u>
-```bash
+```
 Created a new local CA 💥
 Note: the local CA is not installed in the system trust store.
 Run "mkcert -install" for certificates to be trusted automatically ⚠️
@@ -41,7 +41,7 @@ kubectl create secret tls demo-cert \
 ```
 
 <u><small>Output:</small></u>
-```bash
+```
 secret/demo-cert created
 ```
 
@@ -86,7 +86,7 @@ kubectl get gateway tls-gateway
 ```
 
 <u><small>Output:</small></u>
-```bash
+```
 NAME          CLASS    ADDRESS          PROGRAMMED   AGE
 tls-gateway   cilium   172.18.255.201   True         50s
 ```
@@ -99,7 +99,7 @@ echo $GATEWAY_IP
 ```
 
 <u><small>Output:</small></u>
-```bash
+```
 172.18.255.201
 ```
 ## Test the application
