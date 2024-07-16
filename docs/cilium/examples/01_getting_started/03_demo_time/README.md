@@ -65,3 +65,84 @@ kubectl exec xwing -- \
 ```bash
 Ship landed
 ```
+**Note:** The `deathstar` service is not protected by any policies, so both the `xwing` and `tiefighter` pods are able to communicate with it.
+Security wise, this is not good. For the good guys, this is great!
+
+### 3. Apply a Network Policy (and test it)
+The policy that we will apply also comes from the [Cilium github](https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/minikube/sw_l3_l4_policy.yaml) and is maintained by the Cilium team.  
+This policy will only allow pods of the `empire` org to communicate with the `deathstar` service.
+<u><b>Command:</b></u>
+```bash
+kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/minikube/sw_l3_l4_policy.yaml
+```
+<u><small>Output:</small></u>
+```bash
+ciliumnetworkpolicy.cilium.io/rule1 created
+```
+
+To test the policy, we will try to communicate with the `deathstar` service from both the `xwing` and `tiefighter` pods.
+From the `tiefigher` pod:
+<u><b>Command:</b></u>
+```bash
+kubectl exec tiefighter -- \
+  curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+```
+<u><small>Output:</small></u> 
+```bash
+ship landed
+```
+From the `xwing` pod:
+<u><b>Command:</b></u>
+```bash
+kubectl exec xwing -- \
+  curl -s -XPOST deathstar.default.svc.cluster.local/v1/request-landing
+```
+This command will keep running for a long time and will eventually time out.
+
+### 4. Tighter rules
+To make the policy even more secure, we can add a rule that only allows the `tiefigher` pod to communicate with specific paths on the `deathstar` service.  
+Since the the current policies allow pods to either access everything or nothing at all, we will need to create a new policy (layer 7) that restricts this.  
+Currently, this is what can happen:
+<u><b>Command:</b></u>
+```bash
+kubectl exec tiefighter -- \
+  curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+```
+<u><small>Output:</small></u> 
+```bash
+Panic: deathstar exploded
+
+goroutine 1 [running]:
+main.HandleGarbage(0x2080c3f50, 0x2, 0x4, 0x425c0, 0x5, 0xa)
+        /code/src/github.com/empire/deathstar/
+        temp/main.go:9 +0x64
+main.main()
+        /code/src/github.com/empire/deathstar/
+        temp/main.go:5 +0x85
+```
+To make the policy more secure, we will create a new policy that only allows the `tiefighter` pod to communicate with the `/v1/request-landing` path on the `deathstar` service.
+This policy will also come from the [Cilium github](https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/minikube/sw_l7_policy.yaml) and is maintained by the Cilium team.
+<u><b>Command:</b></u>
+```bash
+kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/HEAD/examples/minikube/sw_l3_l4_l7_policy.yaml
+```
+<u><small>Output:</small></u>
+```bash
+ciliumnetworkpolicy.cilium.io/rule1 configured
+```
+
+To test the policy, we will try to communicate with the `deathstar` service at the `/v1/exhaust-port` path from the `tiefighter` pod.
+From the `tiefigher` pod:
+<u><b>Command:</b></u>
+```bash
+kubectl exec tiefighter -- curl -s -XPUT deathstar.default.svc.cluster.local/v1/exhaust-port
+```
+
+<u><small>Output:</small></u> 
+```bash
+Access denied
+```
+**Note:** The `tiefighter` pod is not able to communicate with the `deathstar` service at the `/v1/exhaust-port` path,  
+but it is still able to communicate with the `deathstar` service at the `/v1/request-landing` path.  
+This is because cilium can enforce policies at layer 7 (application layer) as well as layer 3/4 (network layer).
+
