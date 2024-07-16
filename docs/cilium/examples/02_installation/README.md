@@ -3,6 +3,7 @@
 To install Cilium on a [kind cluster](https://kind.sigs.k8s.io/), you can follow the [official documentation](https://docs.cilium.io/en/stable/gettingstarted/kind/).
 Or just do the following:  
 ### 1. Install cilium CLI
+<u><b>Command:</b></u>
 ```bash
 # Variables
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
@@ -19,10 +20,11 @@ rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
 ```
 
 ### 2. Install Cilium
+<u><b>Command:</b></u>
 ```bash
 cilium install
 ```
-Output:
+<u><small>Output:</small></u> 
 ```bash
 🔮 Auto-detected Kubernetes kind: kind
 ✨ Running "kind" validation checks
@@ -35,10 +37,11 @@ Output:
 ```
 
 ### 3. Check the cilium status
+<u><b>Command:</b></u>
 ```bash
 cilium status --wait
 ```
-Output:
+<u><small>Output:</small></u> 
 ```bash
     /¯¯\
  /¯¯\__/¯¯\    Cilium:             OK

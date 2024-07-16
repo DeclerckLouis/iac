@@ -2,7 +2,7 @@
 ## Starting a cluster without a CNI plugin or kube-proxy
 In this example, a [kind cluster](https://kind.sigs.k8s.io/) has been initialized without a CNI plugin or kube-proxy.  
 This can be done by starting a [kind cluster](https://kind.sigs.k8s.io/) with the following configuration:  
-/etc/kind/kind-config.yaml  
+<u><b>/etc/kind/kind-config.yaml</b></u>
 ```yaml
 ---
 kind: Cluster
@@ -28,6 +28,7 @@ networking:
 
 I did the same for my [k3s cluster](https://k3s.io/) by disabling flannel, kube-proxy, servicelb, network-policy, and traefik.  
 This can be achieved by running the following command:  
+<u><b>Command:</b></u>
 ```bash
 curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - \
     --write-kubeconfig-mode 644 \
@@ -40,11 +41,12 @@ curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - \
 ```
 In these examples I will follow along with the [kind cluster](https://kind.sigs.k8s.io/) example.  
 To start a [kind cluster](https://kind.sigs.k8s.io/) with the above configuration, run the following command:  
+<u><b>Command:</b></u>
 ```bash
 kind create cluster --config /etc/kind/kind-config.yaml
 ```
 After the cluster has been created, you can check on the nodes with the `kubectl get nodes` command.  
-This will then show the following output  
+<u><small>Output:</small></u> 
 ```bash
 NAME                 STATUS     ROLES           AGE    VERSION
 kind-control-plane   NotReady   control-plane   107m   v1.29.2
