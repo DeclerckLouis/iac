@@ -1,4 +1,10 @@
 # init
+## Table of Contents
+- [init](#init)
+  - [Table of Contents](#table-of-contents)
+  - [Checks](#checks)
+    - [How was cilium installed?](#how-was-cilium-installed)
+
 ## Checks
 Check if the installed CRDs are available
 <u><b>Command:</b></u>
