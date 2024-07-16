@@ -1,7 +1,16 @@
 # HTTP Demo Time (bookinfo)
+## Table of Contents
+- [HTTP Demo Time (bookinfo)](#http-demo-time-bookinfo)
+  - [Table of Contents](#table-of-contents)
+  - [Getting started](#getting-started)
+    - [1. deploy the bookinfo application](#1-deploy-the-bookinfo-application)
+    - [2. Deploy the Gateway](#2-deploy-the-gateway)
+    - [2. Gateway Path Matching](#2-gateway-path-matching)
+    - [3. Gateway Header Matching](#3-gateway-header-matching)
+
 ## Getting started
 ### 1. deploy the bookinfo application
-This is from the [Istio github](https://github.com/istio/istio/tree/master/samples/bookinfo) and maintained by the Istio team.
+This is from the [Istio github](https://github.com/istio/istio/tree/master/samples/bookinfo) and maintained by the Istio team.  
 <u><b>Command:</b></u>
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/master/samples/bookinfo/platform/kube/bookinfo.yaml
@@ -14,7 +23,7 @@ service/details created
 serviceaccount/bookinfo-productpage created
 deployment.apps/productpage-v1 created
 ```
-Now, we can check on the pods and the services:
+Now, we can check on the pods and the services:  
 <u><b>Command:</b></u>
 ```bash
 kubectl get pods,svc
@@ -40,7 +49,7 @@ service/reviews       ClusterIP   10.96.110.211   <none>        9080/TCP   4m2s
 Everything seems to be up and running.
 
 ### 2. Deploy the Gateway
-The gateway can be deployed with the following manifest:
+The gateway can be deployed with the following manifest:  
 <u><b>Command:</b></u>
 ```bash
 # The contents of basic-http.yaml can be found in this directory
@@ -53,7 +62,7 @@ gateway.gateway.networking.k8s.io/my-gateway created
 httproute.gateway.networking.k8s.io/http-app-1 created
 ```
 The gateway has been deployed and is working. We can review the configuration:
-<u><small>Gateway</small></u>
+<u><small>Gateway.yaml</small></u>
 
 ```yaml
 ---
@@ -109,7 +118,7 @@ This first rule will match any path that starts with `/details` and send the tra
 This second rule will match any traffic that has the header `magic: foo`, the query parameter `great=example`, the path `/`, and the method `GET`.  
 This is just an example of how specific the rules can be and how Layer 7 traffic can be controlled.
 
-Check the services now that the gateway has been deployed:
+Check the services now that the gateway has been deployed:  
 <u><b>Command:</b></u>
 ```bash
 kubectl get svc
@@ -126,7 +135,7 @@ ratings                     ClusterIP      10.96.165.155   <none>           9080
 reviews                     ClusterIP      10.96.110.211   <none>           9080/TCP       21m
 ```
 The `cilium-gateway-my-gateway` service is now a `LoadBalancer` service and has an external IP address.  
-The same external IP address is also associated with the `cilium-gateway-my-gateway` service.
+The same external IP address is also associated with the `cilium-gateway-my-gateway` service.  
 <u><b>Command:</b></u>
 ```bash
 kubectl get gateway
@@ -138,7 +147,7 @@ NAME         CLASS    ADDRESS          PROGRAMMED   AGE
 my-gateway   cilium   172.18.255.203   True         24m
 ```
 
-To get the IP address:
+To get the IP address:  
 <u><b>Command:</b></u>
 ```bash
 GATEWAY=$(kubectl get gateway my-gateway -o jsonpath='{.status.addresses[0].value}')
@@ -151,7 +160,7 @@ echo $GATEWAY
 ```
 
 ### 2. Gateway Path Matching
-To test the application, we can use the `curl` command to send a request to the `/details` page:
+To test the application, we can use the `curl` command to send a request to the `/details` page:  
 <u><b>Command:</b></u>
 ```bash
 curl --fail -s http://$GATEWAY/details/1 | jq
@@ -174,7 +183,7 @@ curl --fail -s http://$GATEWAY/details/1 | jq
 The request was successful and the details of the book were returned.
 
 ### 3. Gateway Header Matching
-To test the application, we can use the `curl` command to send a request to the `/` page with the header `magic: foo`:
+To test the application, we can use the `curl` command to send a request to the `/` page with the header `magic: foo`:  
 <u><b>Command:</b></u>
 ```bash
 curl -v -H 'magic: foo' "http://$GATEWAY?great=example"

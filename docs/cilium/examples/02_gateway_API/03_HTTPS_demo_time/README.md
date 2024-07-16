@@ -1,7 +1,16 @@
 # HTTPS demo time
 In this demo, we will use https. This requires a certificate to be created and used.  
+
+## Table of Contents
+- [HTTPS demo time](#https-demo-time)
+  - [Table of Contents](#table-of-contents)
+  - [Create TLS certificate and key](#create-tls-certificate-and-key)
+  - [Deploy the gateway](#deploy-the-gateway)
+  - [Test the application](#test-the-application)
+
+
 ## Create TLS certificate and key
-To create the certificate and key, we will use the following command:
+To create the certificate and key, we will use the following command:  
 <u><b>Command:</b></u>
 ```bash
 mkcert '*.cilium.rocks'
@@ -23,7 +32,7 @@ The certificate is at "./_wildcard.cilium.rocks.pem" and the key at "./_wildcard
 It will expire on 16 October 2026 🗓
 ```
 
-Create a kubernetes secret with the certificate and key:
+Create a kubernetes secret with the certificate and key:  
 <u><b>Command:</b></u>
 ```bash
 kubectl create secret tls demo-cert \
@@ -37,7 +46,7 @@ secret/demo-cert created
 ```
 
 ## Deploy the gateway
-We'll deploy the HTTPS gateway with the following manifest:
+We'll deploy the HTTPS gateway with the following manifest:  
 <u><b>Command:</b></u>
 ```bash
 # The contents of basic-https.yaml can be found in this directory
@@ -45,7 +54,7 @@ kubectl apply -f basic-https.yaml
 ```
 
 Time to inspect the gateway:
-It's almost the same as the HTTP gateway, but with a few changes.
+It's almost the same as the HTTP gateway, but with a few changes.  
 ```yaml
 spec:
   gatewayClassName: cilium
@@ -70,7 +79,7 @@ spec:
 ```
 This section will use the `tls-gateway` as the parent gateway.  
 
-Check if the gateway has a load balancer IP:
+Check if the gateway has a load balancer IP:  
 <u><b>Command:</b></u>
 ```bash
 kubectl get gateway tls-gateway
@@ -82,7 +91,8 @@ NAME          CLASS    ADDRESS          PROGRAMMED   AGE
 tls-gateway   cilium   172.18.255.201   True         50s
 ```
 
-Assign the IP address to a variable:
+Assign the IP address to a variable:  
+<u><b>Command: </b>/u>
 ```bash
 GATEWAY_IP=$(kubectl get gateway tls-gateway -o jsonpath='{.status.addresses[0].value}')
 echo $GATEWAY_IP
@@ -93,13 +103,13 @@ echo $GATEWAY_IP
 172.18.255.201
 ```
 ## Test the application
-First, we need to install the certificate in our system:
+First, we need to install the certificate in our system:  
 <u><b>Command:</b></u>
 ```bash
 mkcert -install
 ```
 
-Now we can test the application:
+Now we can test the application:  
 <u><b>Command:</b></u>
 ```bash
 curl -s \
