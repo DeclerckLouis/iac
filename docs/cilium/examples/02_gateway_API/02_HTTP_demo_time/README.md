@@ -113,7 +113,7 @@ Check the services now that the gateway has been deployed:
 <u><b>Command:</b></u>
 ```bash
 kubectl get svc
-´´´
+```
 
 <u><small>Output:</small></u>
 ```bash
