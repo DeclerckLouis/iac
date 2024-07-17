@@ -9,6 +9,8 @@
 # Set some base variables
 USER_HOME=$(eval echo ~${SUDO_USER})
 IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 
 SKIP_CONFIRMATION=false
 INSTALL_HUBBLE=false
@@ -217,7 +219,6 @@ if [ "$INSTALL_HUBBLE" = true ]; then
 
 if [ "$INSTALL_ARGO" = true ]; then
   # Install argo-cd
-  bash ./argo-cd.sh
-
+  ${SCRIPT_DIR}/argo-cd.sh
 echo ""
 echo "Please give the node up to 10 minutes to be ready. "
