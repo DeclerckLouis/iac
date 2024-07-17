@@ -222,5 +222,6 @@ if [ "$INSTALL_ARGO" = true ]; then
   # Install argo-cd
   chmod +x "${SCRIPT_DIR}/argo-cd.sh"
   ${SCRIPT_DIR}/argo-cd.sh
+  fi
 echo ""
 echo "Please give the node up to 10 minutes to be ready. "
