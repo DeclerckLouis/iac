@@ -11,20 +11,31 @@ USER_HOME=$(eval echo ~${SUDO_USER})
 IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
 
 SKIP_CONFIRMATION=false
+INSTALL_HUBBLE=false
+INSTALL_ARGO=false
 
 # Parse command-line arguments
-while getopts ":y" opt; do
-  case ${opt} in
-    y )
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    -y)
       SKIP_CONFIRMATION=true
       ;;
-    \? )
-      echo "Usage: bash bootstrap.sh [-y]"
+    --hubble)
+      INSTALL_HUBBLE=true
+      ;;
+    --argo)
+      INSTALL_ARGO=true
+      ;;
+    *)
+      echo "Usage: bash bootstrap.sh [-y] [--hubble] [--ARGO]"
       echo "Options:"
-        echo "  -y  Skip confirmation"
+      echo "  -y        Skip confirmation"
+      echo "  --hubble  Install Hubble"
+      echo "  --argo    Install Argo"
       exit 1
       ;;
   esac
+  shift
 done
 
 
@@ -172,19 +183,23 @@ cilium install \
   --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
 echo "Cilium installed."
 
-# # enable hubble -> you must install the hubble client on your local machine to use this feature
-# # https://docs.cilium.io/en/latest/gettingstarted/hubble_setup/#hubble-setup
-# echo "Enabling Hubble..."
-# cilium hubble enable --ui
-# while [ $(kubectl get pods -n kube-system | grep -c "cilium-hubble") -lt 1 ]; do
-#     sleep 5
-#     echo "."
-# done
-# echo "Hubble enabled."
 
-# # Port forward hubble ui
-# kubectl port-forward -n kube-system svc/hubble-ui --address 127.0.0.1 12000:80
-# echo "Hubble UI port forwarded to localhost:12000."
+if [ "$INSTALL_HUBBLE" = true ]; then
+  # enable hubble -> you must install the hubble client on your local machine to use this feature
+  # https://docs.cilium.io/en/latest/gettingstarted/hubble_setup/#hubble-setup
+  echo "Enabling Hubble..."
+  cilium hubble enable --ui
+  while [ $(kubectl get pods -n kube-system | grep -c "cilium-hubble") -lt 1 ]; do
+      sleep 5
+      echo "."
+  done
+  echo "Hubble enabled."
+
+  # Port forward hubble ui
+  kubectl port-forward -n kube-system svc/hubble-ui --address 127.0.0.1 12000:80
+  echo "Hubble UI port forwarded to localhost:12000."
+    fi
+
 
 echo "Done."
 echo ""
