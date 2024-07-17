@@ -98,9 +98,10 @@ echo ""
 echo "Installing required packages..."
 apt-get -y install curl openssl > /dev/null
 echo "Apt packages installed."
+sleep 1
 
 echo ""
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 echo "Helm installed."
 
 echo "Done."
