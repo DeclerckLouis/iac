@@ -182,7 +182,9 @@ cilium install \
   --set kubeProxyReplacement=true \
   --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
 echo "Cilium installed."
+echo "Done."
 
+############################################ HUBBLE ############################################
 
 if [ "$INSTALL_HUBBLE" = true ]; then
   # enable hubble -> you must install the hubble client on your local machine to use this feature
@@ -195,12 +197,27 @@ if [ "$INSTALL_HUBBLE" = true ]; then
   done
   echo "Hubble enabled."
 
-  # Port forward hubble ui
-  kubectl port-forward -n kube-system svc/hubble-ui --address 127.0.0.1 12000:80
-  echo "Hubble UI port forwarded to localhost:12000."
+  # Install hubble cli
+  HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+  HUBBLE_ARCH=amd64
+  if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
+  curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+  sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum
+  sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+  rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+  echo "Hubble CLI installed."
+
+  cilium hubble port-forward &
+  echo "Hubble port-forwarded."
+  echo "Done."
+
     fi
 
+############################################ ARGO ############################################
 
-echo "Done."
+if [ "$INSTALL_ARGO" = true ]; then
+  # Install argo-cd
+  bash ./argo-cd.sh
+
 echo ""
 echo "Please give the node up to 10 minutes to be ready. "
