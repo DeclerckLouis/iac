@@ -10,7 +10,17 @@ else
     HOMEDIR=$(eval echo ~${USER})
 fi
 
+ARGO_ARCH=amd64
+if [ "$(uname -m)" = "aarch64" ]; then ARGO_ARCH=arm64; fi
+
 clear
+
+echo "Installing argoCD CLI..."
+curl -sLO https://github.com/argoproj/argo-workflows/releases/download/v3.5.8/argo-linux-${ARGO_ARCH}.gz
+gunzip argo-linux-${ARGO_ARCH}.gz
+chmod +x argo-linux-${ARGO_ARCH}
+mv ./argo-linux-${ARGO_ARCH} /usr/local/bin/argo
+
 echo "Installing Argo CD on k3s cluster..."
 echo "Argo CD initial password will be saved to ${HOMEDIR}/argocd_password.txt"
 sleep 1
