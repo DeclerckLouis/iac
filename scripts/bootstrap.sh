@@ -124,7 +124,7 @@ curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - \
     --disable servicelb \
     --disable-network-policy \
     --disable=traefik \
-    --cluster-init \
+    --cluster-init
 
 echo "K3s installed."
 
@@ -189,7 +189,7 @@ if [ "$INSTALL_HUBBLE" = true ]; then
   # https://docs.cilium.io/en/latest/gettingstarted/hubble_setup/#hubble-setup
   echo "Enabling Hubble..."
   cilium hubble enable --ui
-  while [ $(kubectl get pods -n kube-system | grep -c "cilium-hubble") -lt 1 ]; do
+  while [ $(kubectl get pods -n kube-system | grep -c "hubble-ui") -lt 1 ]; do
       sleep 5
       echo "."
   done
