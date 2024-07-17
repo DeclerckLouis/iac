@@ -12,7 +12,7 @@ The main thing to note is that there are 3 main routing nodes:
 - Two TOR (Top Of Rack) routers (tor0 and tor1)  
 At the end of the file you can also see that we're establishing a virtual link between the TOR routers.  
 <u><b>Topology:</b></u>  
-![Topology](./bgp_topo.png)
+![Topology](./bgp_topo.jpg)
 
 ## Deploy the topology
 To deploy the topology, we can use the following command:  
