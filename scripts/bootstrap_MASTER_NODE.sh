@@ -126,7 +126,7 @@ sleep 1
 
 # according to https://docs.cilium.io/en/stable/operations/system-requirements
 if grep -q "Raspberry Pi" /proc/device-tree/model; then
-  apt-get -y install linux-modules-extra-raspi > /dev
+  apt-get -y install linux-modules-extra-raspi > /dev/null
 fi
 
 
@@ -165,7 +165,7 @@ fi
 echo "Setting up kubernetes..."
 # First Master node installation
 if [ "$NODE_TYPE" = "initmaster" ]; then
-  curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - server \
+  curl -sfL https://get.k3s.io | K3S_TOKEN=$k3s_token_value sh -s - server \
       --write-kubeconfig-mode 644 \
       --flannel-backend=none \
       --disable-kube-proxy \
@@ -176,7 +176,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
       --cluster-init
 
 elif [ "$NODE_TYPE" = "master" ]; then
-  curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - server \
+  curl -sfL https://get.k3s.io | K3S_TOKEN=$k3s_token_value sh -s - server \
       --write-kubeconfig-mode 644 \
       --flannel-backend=none \
       --disable-kube-proxy \
@@ -187,7 +187,7 @@ elif [ "$NODE_TYPE" = "master" ]; then
       --server https://${cluster_ip}:6443
 
 elif [ "$NODE_TYPE" = "worker" ]; then
-  curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443
+  curl -sfL https://get.k3s.io | K3S_AGENT_TOKEN=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443
 else
   echo "Invalid node type. Exiting."
   exit 1
