@@ -15,6 +15,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 SKIP_CONFIRMATION=false
 INSTALL_HUBBLE=false
 INSTALL_ARGO=false
+NODE_TYPE="initmaster" # will run as the first master node by default
 
 # Parse command-line arguments
 while [[ "$#" -gt 0 ]]; do
@@ -28,12 +29,35 @@ while [[ "$#" -gt 0 ]]; do
     --argo)
       INSTALL_ARGO=true
       ;;
-    *)
-      echo "Usage: bash bootstrap.sh [-y] [--hubble] [--ARGO]"
+    -M|--init)
+      NODE_TYPE="initmaster"
+      ;;
+    -m|--master)
+      NODE_TYPE="master"
+      ;;
+    -w|--worker)
+      NODE_TYPE="worker"
+      ;;
+    --help|-h)
+      echo "Usage: bash bootstrap.sh [-y] [--hubble] [--argo] [--master] [--worker]"
       echo "Options:"
-      echo "  -y        Skip confirmation"
-      echo "  --hubble  Install Hubble"
-      echo "  --argo    Install Argo"
+      echo "  -y            Skip confirmation"
+      echo "  --hubble      Install Hubble"
+      echo "  --argo        Install Argo"
+      echo "  -M, --init  Configure as first master node (uses cluster-init)"
+      echo "  -m, --master  Configure as master node"
+      echo "  -w, --worker      Configure as worker node"
+      exit 1
+      ;;
+    *)
+      echo "Usage: bash bootstrap.sh [-y] [--hubble] [--argo] [--master] [--worker]"
+      echo "Options:"
+      echo "  -y            Skip confirmation"
+      echo "  --hubble      Install Hubble"
+      echo "  --argo        Install Argo"
+      echo "  -M, --init  Configure as first master node (uses cluster-init)"
+      echo "  -m, --master  Configure as master node"
+      echo "  -w, --worker      Configure as worker node"
       exit 1
       ;;
   esac
@@ -100,6 +124,12 @@ apt-get -y install curl openssl > /dev/null
 echo "Apt packages installed."
 sleep 1
 
+# according to https://docs.cilium.io/en/stable/operations/system-requirements
+if grep -q "Raspberry Pi" /proc/device-tree/model; then
+  apt-get -y install linux-modules-extra-raspi > /dev/null
+fi
+
+
 echo ""
 curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 echo "Helm installed."
@@ -109,37 +139,70 @@ echo ""
 
 
 ############################################ K3S ############################################
+if [ "$NODE_TYPE" = "initmaster" ]; then
+  # Generate the k3s token 
+  echo "This node will be the first master node."
+  echo "Generating k3s token..."
+  k3s_token_value=$(openssl rand -hex 16)
+  echo "Token generated." 
+  echo "Token will be saved to ${USER_HOME}/k3s_token.txt" after k3s installation.
+  echo "Done."
+  echo ""
+else
+  echo "This node will join an existing cluster."
+  # get the cluster IP
+  echo "Please enter the cluster IP address:"
+  read cluster_ip
 
-# Generate the k3s token 
-echo "Generating k3s token..."
-k3s_token_value=$(openssl rand -hex 16)
-echo "Token generated." 
-echo "Token will be saved to ${USER_HOME}/k3s_token.txt" after k3s installation.
-echo "Done."
-echo ""
+  # Get the k3s token from the user
+  echo "Please enter the k3s token:"
+  read -s k3s_token_value
+
+fi
+
 
 # Install k3s
 echo "Setting up kubernetes..."
 # First Master node installation
-curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - server \
-    --write-kubeconfig-mode 644 \
-    --flannel-backend=none \
-    --disable-kube-proxy \
-    --disable "servicelb" \
-    --disable "traefik" \
-    --disable "metrics-server" \
-    --disable-network-policy \
-    --cluster-init
+if [ "$NODE_TYPE" = "initmaster" ]; then
+  curl -sfL https://get.k3s.io | K3S_TOKEN=$k3s_token_value sh -s - server \
+      --write-kubeconfig-mode 644 \
+      --flannel-backend=none \
+      --disable-kube-proxy \
+      --disable "servicelb" \
+      --disable "traefik" \
+      --disable "metrics-server" \
+      --disable-network-policy \
+      --cluster-init
 
+elif [ "$NODE_TYPE" = "master" ]; then
+  curl -sfL https://get.k3s.io | K3S_TOKEN=$k3s_token_value sh -s - server \
+      --write-kubeconfig-mode 644 \
+      --flannel-backend=none \
+      --disable-kube-proxy \
+      --disable "servicelb" \
+      --disable "traefik" \
+      --disable "metrics-server" \
+      --disable-network-policy \
+      --server https://${cluster_ip}:6443
+
+elif [ "$NODE_TYPE" = "worker" ]; then
+  curl -sfL https://get.k3s.io | K3S_AGENT_TOKEN=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443
+else
+  echo "Invalid node type. Exiting."
+  exit 1
+fi
 echo "K3s installed."
 
-# Save the k3s token to the user home directory
-echo $k3s_token_value > ${USER_HOME}/.kube/k3s_token.txt
-echo "Token saved to ${USER_HOME}/.kube/k3s_token.txt."
+if [ "$NODE_TYPE" = "initmaster" ]; then
+  # Save the k3s token to the user home directory
+  echo $k3s_token_value > ${USER_HOME}/.kube/k3s_token.txt
+  echo "Token saved to ${USER_HOME}/.kube/k3s_token.txt."
 
-# Add kubeconfig to user home dir
-cp /etc/rancher/k3s/k3s.yaml ${USER_HOME}/.kube/config
-echo "Kubeconfig copied to home directory of ${SUDO_USER}."
+  # Add kubeconfig to user home dir
+  cp /etc/rancher/k3s/k3s.yaml ${USER_HOME}/.kube/config
+  echo "Kubeconfig copied to home directory of ${SUDO_USER}."
+fi
 
 echo "Waiting for node to be ready..."
 echo "This may take a few minutes."
@@ -155,70 +218,76 @@ echo ""
 
 ############################################ CILIUM ############################################
 
-echo "Installing Cilium..."
-# Set kubeconfig for cilium installation
-# The following can be done with helm charts as well
-# helm repo add cilium https://helm.cilium.io/
-# helm repo update
-# helm install cilium cilium/cilium
-# helm upgrade cilium cilium/cilium
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+if [ "$NODE_TYPE" = "initmaster" ]; then
+    
 
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=amd64
-if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-echo "Variables set."
+  echo "Installing Cilium..."
+  # Set kubeconfig for cilium installation
+  # The following can be done with helm charts as well
+  # helm repo add cilium https://helm.cilium.io/
+  # helm repo update
+  # helm install cilium cilium/cilium
+  # helm upgrade cilium cilium/cilium
+  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
-#Download
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-# Check sha256sum
-sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-# Unpack in /usr/local/bin and remove the tarball
-tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-echo "Cilium CLI installed."
+  CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+  CLI_ARCH=amd64
+  if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+  echo "Variables set."
 
-# Install cilium 
-# CURRENT CILIUM VERSION: 1.15.7 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
-cilium install \
-  --version 1.15.7 \
-  --set k8sServiceHost=${IP_ADDRESS} \
-  --set k8sServicePort=6443 \
-  --set kubeProxyReplacement=true \
-  --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
-  --set gatewayAPI.enabled=true
+  #Download
+  curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+  # Check sha256sum
+  sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+  # Unpack in /usr/local/bin and remove the tarball
+  tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+  rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+  echo "Cilium CLI installed."
 
-echo "Cilium installed."
-echo "Done."
+  # Install cilium 
+  # CURRENT CILIUM VERSION: 1.15.7 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
+  cilium install \
+    --version 1.15.7 \
+    --set k8sServiceHost=${IP_ADDRESS} \
+    --set k8sServicePort=6443 \
+    --set kubeProxyReplacement=true \
+    --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
+    --set gatewayAPI.enabled=true
 
+  echo "Cilium installed."
+  echo "Done."
+fi 
 ############################################ HUBBLE ############################################
 
 if [ "$INSTALL_HUBBLE" = true ]; then
-  # enable hubble -> you must install the hubble client on your local machine to use this feature
-  # https://docs.cilium.io/en/latest/gettingstarted/hubble_setup/#hubble-setup
-  echo "Enabling Hubble..."
-  cilium hubble enable --ui
-  while [ $(kubectl get pods -n kube-system | grep -c "hubble-ui") -lt 1 ]; do
-      sleep 5
-      echo "."
-  done
-  echo "Hubble enabled."
+  if [ "$NODE_TYPE" = "initmaster" ]; then
+    # enable hubble -> you must install the hubble client on your local machine to use this feature
+    # https://docs.cilium.io/en/latest/gettingstarted/hubble_setup/#hubble-setup
+    echo "Enabling Hubble..."
+    cilium hubble enable --ui
+    while [ $(kubectl get pods -n kube-system | grep -c "hubble-ui") -lt 1 ]; do
+        sleep 5
+        echo "."
+    done
+    echo "Hubble enabled."
 
-  # Install hubble cli
-  HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
-  HUBBLE_ARCH=amd64
-  if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
-  curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
-  sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum > /dev/null
-  sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
-  rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum} > /dev/null
-  echo "Hubble CLI installed."
+    # Install hubble cli
+    HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+    HUBBLE_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum > /dev/null
+    sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+    rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum} > /dev/null
+    echo "Hubble CLI installed."
 
-  cilium hubble port-forward &
-  echo "Hubble port-forwarded."
-  echo "Done."
-
-    fi
+    cilium hubble port-forward &
+    echo "Hubble port-forwarded."
+    echo "Done."
+  else
+    echo "Hubble can only be installed on the first master node."
+  fi
+fi
 
 ############################################ ARGO ############################################
 
