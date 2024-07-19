@@ -120,13 +120,15 @@ echo ""
 
 # Install k3s
 echo "Setting up kubernetes..."
-curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - \
+# First Master node installation
+curl -sfL https://get.k3s.io | K3s_token=$k3s_token_value sh -s - server \
     --write-kubeconfig-mode 644 \
     --flannel-backend=none \
     --disable-kube-proxy \
-    --disable servicelb \
+    --disable "servicelb" \
+    --disable "traefik" \
+    --disable "metrics-server" \
     --disable-network-policy \
-    --disable=traefik \
     --cluster-init
 
 echo "K3s installed."
@@ -223,7 +225,7 @@ if [ "$INSTALL_HUBBLE" = true ]; then
 if [ "$INSTALL_ARGO" = true ]; then
   # Install argo-cd
   chmod +x "${SCRIPT_DIR}/argo-cd.sh"
-  ${SCRIPT_DIR}/argo-cd.sh
-  fi
+  bash ${SCRIPT_DIR}/argo-cd.sh
+fi
 echo ""
 echo "Please give the node up to 10 minutes to be ready. "
