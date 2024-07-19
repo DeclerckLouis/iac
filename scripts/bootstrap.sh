@@ -183,7 +183,9 @@ cilium install \
   --set k8sServiceHost=${IP_ADDRESS} \
   --set k8sServicePort=6443 \
   --set kubeProxyReplacement=true \
-  --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
+  --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
+  --set gatewayAPI.enabled=true
+
 echo "Cilium installed."
 echo "Done."
 
