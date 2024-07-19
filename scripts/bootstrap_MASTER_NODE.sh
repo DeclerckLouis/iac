@@ -117,6 +117,7 @@ echo "Updating package list..."
 apt-get -y update > /dev/null
 echo "Done."
 echo ""
+sleep 1
 
 # Install required packages
 echo "Installing required packages..."
