@@ -41,7 +41,7 @@ echo "Patching Argo CD service to use NodePort..."
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}' > /dev/null
 
 # Get the networking information
-NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' | cut -d ' ' -f 1)
 NODE_PORT=$(kubectl get svc -n argocd argocd-server -o jsonpath="{.spec.ports[?(@.name=='https')].nodePort}")
 
 # Restart the argocd server pod
