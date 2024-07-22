@@ -1,0 +1,10 @@
+# with 
+# ports:
+    # - port: {{ .Values.service.port }}
+    #   targetPort: http
+    #   protocol: TCP
+    #   name: http
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8080
