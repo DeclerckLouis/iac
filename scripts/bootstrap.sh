@@ -187,6 +187,7 @@ elif [ "$NODE_TYPE" = "master" ]; then
       --disable-network-policy \
       --server https://${cluster_ip}:6443
 
+# TODO: fix token usage for worker nodes
 elif [ "$NODE_TYPE" = "worker" ]; then
   curl -sfL https://get.k3s.io | K3S_AGENT_TOKEN=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443 --token $k3s_token_value
 else
