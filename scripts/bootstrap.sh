@@ -188,7 +188,7 @@ elif [ "$NODE_TYPE" = "master" ]; then
       --server https://${cluster_ip}:6443
 
 elif [ "$NODE_TYPE" = "worker" ]; then
-  curl -sfL https://get.k3s.io | K3S_AGENT_TOKEN=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443
+  curl -sfL https://get.k3s.io | K3S_AGENT_TOKEN=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443 --token $k3s_token_value
 else
   echo "Invalid node type. Exiting."
   exit 1
@@ -204,15 +204,15 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   cp /etc/rancher/k3s/k3s.yaml ${USER_HOME}/.kube/config
   echo "Kubeconfig copied to home directory of ${SUDO_USER}."
 fi
-
-echo "Waiting for node to be ready..."
-echo "This may take a few minutes."
-sleep 10
-# grepping for nodes that are either at the Ready or NotReady state (it will never be Ready without a CNI )
-while [ $(kubectl get nodes | grep -c "Ready") -lt 1 ]; do
-    sleep 10
-    echo "."
-done
+if [ "$NODE_TYPE" != "worker" ]; then
+  echo "Waiting for node to be ready..."
+  echo "This may take a few minutes."
+  sleep 10
+  # grepping for nodes that are either at the Ready or NotReady state (it will never be Ready without a CNI )
+  while [ $(kubectl get nodes | grep -c "Ready") -lt 1 ]; do
+      sleep 10
+      echo "."
+  done
 echo "Node is responding."
 echo "Done."
 echo ""
