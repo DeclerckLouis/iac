@@ -220,9 +220,16 @@ echo ""
 ############################################ CILIUM ############################################
 
 if [ "$NODE_TYPE" = "initmaster" ]; then
-    
-
+  
   echo "Installing Cilium..."
+  # CRDs for Gateway API
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml 
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v0.7.0/config/crd/experimental/gateway.networking.k8s.io_tlsroutes.yaml
+  echo "Custom Resource Definitions installed."
+
   # Set kubeconfig for cilium installation
   # The following can be done with helm charts as well
   # helm repo add cilium https://helm.cilium.io/
@@ -249,11 +256,13 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   # CURRENT CILIUM VERSION: 1.15.7 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
   cilium install \
     --version 1.15.7 \
-    --set k8sServiceHost=${IP_ADDRESS} \
-    --set k8sServicePort=6443 \
+    --namespace kube-system \
+    --set gatewayAPI.enabled=true\
     --set kubeProxyReplacement=true \
+    --set l2announcements.enabled=true \
     --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
-    --set gatewayAPI.enabled=true
+    --set k8sServiceHost=${IP_ADDRESS} \
+    --set k8sServicePort=6443
 
   echo "Cilium installed."
   echo "Done."
