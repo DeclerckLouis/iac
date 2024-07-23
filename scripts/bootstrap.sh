@@ -214,9 +214,10 @@ if [ "$NODE_TYPE" != "worker" ]; then
       sleep 10
       echo "."
   done
-echo "Node is responding."
-echo "Done."
-echo ""
+  echo "Node is responding."
+  echo "Done."
+  echo ""
+fi
 
 ############################################ CILIUM ############################################
 
