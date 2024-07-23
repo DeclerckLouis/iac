@@ -4,6 +4,8 @@
 # This script is intended to be run on the master node.
 # It has only been tested on a raspberry pi 4 running ubuntu 22.04.
 
+# NOTE: I haven't gotten this to work on ubuntu 24.04, 
+
 ############################################ VARIABLES & FUNCTIONS ############################################
 
 # Set some base variables
@@ -126,8 +128,12 @@ echo "Apt packages installed."
 sleep 1
 
 # according to https://docs.cilium.io/en/stable/operations/system-requirements
-if grep -q "Raspberry Pi" /proc/device-tree/model; then
-  apt-get -y install linux-modules-extra-raspi > /dev/null
+# Check if the OS is Ubuntu 22.04
+if grep -q "Ubuntu 22.04" /etc/os-release; then
+  # Check if the device is a Raspberry Pi
+  if grep -q "Raspberry Pi" /proc/device-tree/model; then
+    apt-get -y install linux-modules-extra-raspi > /dev/null
+  fi
 fi
 
 
