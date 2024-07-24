@@ -6,6 +6,8 @@
 
 # NOTE: I haven't gotten this to work on ubuntu 24.04
 ## CURRENTLY TESTING WITH RASPIOS 64 BIT LITE
+## To clone this test branch, run the following command:
+# git clone -b test https://github.com/declercklouis/test
 
 ############################################ VARIABLES & FUNCTIONS ############################################
 
@@ -94,6 +96,7 @@ fi
 ask_confirmation
 
 # Check for apt lock files
+# TODO: THis doesn't seem to do much
 if lsof /var/lib/apt/lists/lock /var/cache/apt/archives/lock /var/lib/dpkg/lock > /dev/null 2>&1; then
     echo "apt is busy. Please try again later."
     exit 1
@@ -194,9 +197,8 @@ elif [ "$NODE_TYPE" = "master" ]; then
       --disable-network-policy \
       --server https://${cluster_ip}:6443
 
-# TODO: fix token usage for worker nodes
 elif [ "$NODE_TYPE" = "worker" ]; then
-  curl -sfL https://get.k3s.io | K3S_AGENT_TOKEN=$k3s_token_value sh -s - agent --server https://${cluster_ip}:6443 --token $k3s_token_value
+  curl -sfL https://get.k3s.io | sh -s - agent --server https://${cluster_ip}:6443 --token $k3s_token_value
 else
   echo "Invalid node type. Exiting."
   exit 1
@@ -245,7 +247,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   # helm repo update
   # helm install cilium cilium/cilium
   # helm upgrade cilium cilium/cilium
-  export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+  # export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
   CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
   CLI_ARCH=amd64
