@@ -244,7 +244,19 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   # The following can be done with helm charts as well
   # helm repo add cilium https://helm.cilium.io/
   # helm repo update
-  # helm install cilium cilium/cilium
+  # helm install cilium cilium/cilium --version 1.14.5 \
+  # --namespace kube-system \
+  # --set ipam.mode=kubernetes \
+  # --set kubeProxyReplacement=true \
+  # --set k8sServiceHost=10.0.1.2 \
+  # --set k8sServicePort=6443 \
+  # --set hostFirewall.enabled=true \
+  # --set l2announcements.enabled=true \
+  # --set externalIPs.enabled=true \
+  # --set gatewayAPI.enabled=true \
+  # --set envoy.enabled=true \
+  # --set debug.enabled=true \
+  # --set debug.verbose=flow
   # helm upgrade cilium cilium/cilium
   # export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
