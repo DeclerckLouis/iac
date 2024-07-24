@@ -10,6 +10,7 @@ After running the script, give the machine a bit of time to start all the servic
 ### Pre-requisites
 **IMPORTANT**: Some pre-requisites are required (or recommended) before running the script:
 - The machine should have a static IP address.  
+- **At the moment, i haven't gotten it to work with more than 1 DNS server.**
 ```yaml
 network:
   ethernets:
@@ -24,20 +25,15 @@ network:
   version: 2
 ```
 
-- Swap should be disabled 
+- Swap should be disabled and Cgroup should be enabled.
 ```bash	
 # Disable swap
 sudo swapoff -a
 sudo sed -i '/swap/d' /etc/fstab
+sudo nano /boot/firmware/cmdline.txt
 sudo reboot now
 ```
 
-- Cgroups should be enabled
-```bash
-# Cgroup setup
-sudo echo "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory" >> /boot/firmware/cmdline.txt
-sudo reboot now
-```
 
 ### Usage
 To run the script, execute the following commands on the Raspberry Pi:
