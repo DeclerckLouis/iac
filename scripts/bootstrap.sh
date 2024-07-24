@@ -7,7 +7,7 @@
 # NOTE: I haven't gotten this to work on ubuntu 24.04
 ## CURRENTLY TESTING WITH RASPIOS 64 BIT LITE
 ## To clone this test branch, run the following command:
-# git clone -b test https://github.com/declercklouis/Iiac
+# git clone -b test https://github.com/declercklouis/iac
 ############################################ VARIABLES & FUNCTIONS ############################################
 
 # Set some base variables
