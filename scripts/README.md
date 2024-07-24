@@ -30,8 +30,9 @@ network:
 # Disable swap
 sudo swapoff -a
 sudo sed -i '/swap/d' /etc/fstab
+echo "cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory"
 # add the following line to /boot/firmware/cmdline.txt at the end:
-# cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory
+
 sudo nano /boot/firmware/cmdline.txt
 sudo reboot now
 ```
