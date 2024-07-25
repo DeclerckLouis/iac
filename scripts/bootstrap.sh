@@ -263,7 +263,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   # Install cilium 
   # CURRENT CILIUM VERSION: 1.15.7 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
   cilium install \
-    --version 1.15.7 \
+    --version 1.16.0 \
     --namespace kube-system \
     --set envoy.enabled=true \
     --set gatewayAPI.enabled=true\
