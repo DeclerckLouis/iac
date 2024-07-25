@@ -265,9 +265,13 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   cilium install \
     --version 1.15.7 \
     --namespace kube-system \
+    --set envoy.enabled=true \
     --set gatewayAPI.enabled=true\
     --set kubeProxyReplacement=true \
+    --set kubeProxyReplacement=strict \
     --set l2announcements.enabled=true \
+    --set k8sClientRateLimit.qps=32 \
+    --set k8sClientRateLimit.burst=60 \
     --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
     --set k8sServiceHost=${IP_ADDRESS} \
     --set k8sServicePort=6443
