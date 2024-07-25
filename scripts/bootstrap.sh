@@ -265,11 +265,16 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   cilium install \
     --version 1.16.0 \
     --namespace kube-system \
+    --set operator.replicas=2 \
     --set envoy.enabled=true \
     --set gatewayAPI.enabled=true\
     --set kubeProxyReplacement=true \
     --set kubeProxyReplacement=strict \
     --set l2announcements.enabled=true \
+    --set externalIPs.enabled=true \
+    --set l2announcements.leaseDuration="3s" \
+    --set l2announcements.leaseRenewDeadline="1s" \
+    --set l2announcements.leaseRetryPeriod="500ms" \
     --set k8sClientRateLimit.qps=32 \
     --set k8sClientRateLimit.burst=60 \
     --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
