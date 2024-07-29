@@ -4,6 +4,6 @@ metadata:
   name: "default-lb-ippool"
 spec:
   blocks:
-    - start: 10.10.11.250
-      stop: 10.10.11.251
+    - start: 192.168.0.80
+      stop: 192.168.0.90
     
