@@ -10,8 +10,14 @@
 
 # Set some base variables
 USER_HOME=$(eval echo ~${SUDO_USER})
-IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
+INTERFACE=$(ip -o -4 addr list | grep "$IP_ADDRESS" | awk '{print $2}')
+# Check if INTERFACE is empty and set a default value if necessary
+if [ -z "$INTERFACE" ]; then
+  INTERFACE="eth0" # Default to eth0 if no match is found
+fi
 
 
 SKIP_CONFIRMATION=false
@@ -83,7 +89,7 @@ if [ $USER == "root" ]; then
     clear
     echo "User is ${SUDO_USER} with Admin rights. Running as ${USER}"
     echo "Kubeconfig and token will be saved to ${USER_HOME}."
-    echo "IP Address is ${IP_ADDRESS}"
+    echo "IP Address is ${IP_ADDRESS}" on interface ${INTERFACE}
 else
     echo "Please run this script as root."
     exit 1
@@ -266,6 +272,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   cilium install \
     --version 1.16.0 \
     --namespace kube-system \
+    --set devices="{$INTERFACE}" \
     --set operator.replicas=2 \
     --set envoy.enabled=true \
     --set gatewayAPI.enabled=true\
