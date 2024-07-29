@@ -9,7 +9,7 @@ spec:
     - protocol: HTTP
       port: 1234
       name: http-microbot-gateway
-      hostname: "k3s-test.declercklouis.local"
+      # hostname: "k3s-test.declercklouis.local"
       allowedRoutes:
         namespaces:
           from: All

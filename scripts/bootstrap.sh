@@ -279,10 +279,22 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   # Install cilium 
   # CURRENT CILIUM VERSION: 1.16.0 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
   # There is also a   --set devices="{eth0,net0}" \ option, this might be needed for the l2announcements to work
+  # Info about all these options can be found throughout the cilium documentation (i will add them here eventually in the docs)
+  # https://docs.cilium.io/en/stable/helm-reference/#helm-reference
+
+# Currently testing Host network mode with privileged ports 
+# https://docs.cilium.io/en/latest/network/servicemesh/gateway-api/gateway-api/#host-network-mode
+# https://docs.cilium.io/en/latest/network/servicemesh/gateway-api/gateway-api/#bind-to-privileged-port
+
   cilium install \
     --version 1.16.0 \
     --namespace kube-system \
     --set devices="{$INTERFACE}" \
+    --set envoy.enabled=true \
+    --set envoy.securityContext.privileged=true \
+    --set envoy.securityContext.capabilities.keepCapNetBindService=true \
+    --set envoy.securityContext.capabilities.envoyNetworkBind=true \
+    --set envoy.securityContext.capabilities.envoy="{NET_BIND_SERVICE}" \
     --set gatewayAPI.enabled=true\
     --set gatewayAPI.hostNetwork.enabled=true \
     --set kubeProxyReplacement=true \
