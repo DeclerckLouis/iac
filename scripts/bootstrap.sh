@@ -286,6 +286,8 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
 # https://docs.cilium.io/en/latest/network/servicemesh/gateway-api/gateway-api/#host-network-mode
 # https://docs.cilium.io/en/latest/network/servicemesh/gateway-api/gateway-api/#bind-to-privileged-port
 
+#TODO: test this with DNS
+
   cilium install \
     --version 1.16.0 \
     --namespace kube-system \
