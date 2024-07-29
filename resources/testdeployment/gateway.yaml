@@ -1,0 +1,15 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: microbot-gateway
+  namespace: default
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - protocol: HTTP
+      port: 1234
+      name: http-microbot-gateway
+      hostname: "k3s-test.declercklouis.local"
+      allowedRoutes:
+        namespaces:
+          from: All
