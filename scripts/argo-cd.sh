@@ -34,20 +34,20 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 # Wait for argo-cd to be ready
 echo ""
 echo "Waiting for Argo CD to be ready..."
-kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
+# kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
 
 # Patch the argo-cd service to use NodePort
 echo "Patching Argo CD service to use NodePort..."
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}' > /dev/null
+# kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}' > /dev/null
 
 # Get the networking information
-NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' | cut -d ' ' -f 1)
-NODE_PORT=$(kubectl get svc -n argocd argocd-server -o jsonpath="{.spec.ports[?(@.name=='https')].nodePort}")
+# NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' | cut -d ' ' -f 1)
+# NODE_PORT=$(kubectl get svc -n argocd argocd-server -o jsonpath="{.spec.ports[?(@.name=='https')].nodePort}")
 
 # Restart the argocd server pod
 echo "Restarting Argo CD server pod to appply changes..."
-kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server > /dev/null
-kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
+# kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server > /dev/null
+# kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
 echo ""
 echo "Argo CD is ready."
 
@@ -58,7 +58,7 @@ echo "Done."
 
 echo ""
 echo ""
-echo "You can now log in to Argo CD at https://${NODE_IP}:${NODE_PORT}"
+#echo "You can now log in to Argo CD at https://${NODE_IP}:${NODE_PORT}"
 echo "The user credentials are as follows: "
 echo "Username: admin"
 echo "Password: $ARGOCDSECRET"
