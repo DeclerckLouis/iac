@@ -292,14 +292,6 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   echo "Cilium installed."
   echo "Done."
 
-  echo "Installing Cert-Manager..."
-  # With the Gateway API feature enabled.
-  helm repo add jetstack https://charts.jetstack.io
-  helm install cert-manager jetstack/cert-manager --version v1.10.0 \
-    --namespace cert-manager \
-    --set installCRDs=true \
-    --create-namespace \
-    --set "extraArgs={--feature-gates=ExperimentalGatewayAPISupport=true}"
 fi 
 ############################################ HUBBLE ############################################
 
