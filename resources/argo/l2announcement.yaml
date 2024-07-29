@@ -5,3 +5,4 @@ metadata:
   namespace: kube-system
 spec:
   loadBalancerIPs: true
+  externalIPs: true
