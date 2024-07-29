@@ -1,0 +1,9 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: microbot-pool
+  namespace: kube-system
+spec:
+  blocks:
+    - start: 10.10.11.250
+      stop: 10.10.11.251

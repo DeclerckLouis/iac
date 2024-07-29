@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microbot
+  labels:
+    app: microbot
+spec:
+  selector:
+    matchLabels:
+      app: microbot
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: microbot
+    spec:
+      containers:
+      - name: microbot
+        image: cdkbot/microbot:1
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
