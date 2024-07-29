@@ -262,6 +262,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
 
   # Install cilium 
   # CURRENT CILIUM VERSION: 1.15.7 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
+  # There is also a   --set devices="{eth0,net0}" \ option, this might be needed for the l2announcements to work
   cilium install \
     --version 1.16.0 \
     --namespace kube-system \
