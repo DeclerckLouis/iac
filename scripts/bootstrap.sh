@@ -273,9 +273,6 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
     --version 1.16.0 \
     --namespace kube-system \
     --set devices="{$INTERFACE}" \
-    --set envoy.enabled=true \
-    --set envoy.securityContext.capabilities.keepCapNetBindService=true \
-    --set envoy.securityContext.capabilities.envoyNetworkBind=true \
     --set gatewayAPI.enabled=true\
     --set kubeProxyReplacement=true \
     --set l2announcements.enabled=true \
