@@ -284,6 +284,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
     --namespace kube-system \
     --set devices="{$INTERFACE}" \
     --set gatewayAPI.enabled=true\
+    --set gatewayAPI.hostNetwork.enabled=true \
     --set kubeProxyReplacement=true \
     --set l2announcements.enabled=true \
     --set externalIPs.enabled=true \
