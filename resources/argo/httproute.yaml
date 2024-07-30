@@ -8,7 +8,7 @@ spec:
     - argotestlouis.dotocean.io
   parentRefs:
     - name: argocd-gateway
-      namespace: argocd
+      # namespace: argocd
   rules:
     - backendRefs:
         - name: argocd-server
