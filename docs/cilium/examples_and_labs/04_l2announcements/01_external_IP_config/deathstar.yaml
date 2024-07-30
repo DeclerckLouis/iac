@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deathstar
+  labels:
+    color: red
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    org: empire
+    class: deathstar
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deathstar
+spec:
+  selector:
+    matchLabels:
+      org: empire
+      class: deathstar
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        org: empire
+        class: deathstar
+        name: deathstar
+    spec:
+      containers:
+      - name: deathstar
+        image: docker.io/cilium/starwars
+        imagePullPolicy: IfNotPresent
