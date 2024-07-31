@@ -307,7 +307,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
 
   echo "Applying default resources..."
   # Apply default resources (from the /resources/01_default folder)
-  kubectl apply -f ${SCRIPT_DIR}/../resources/01_default
+  kubectl apply --save-config -f ${SCRIPT_DIR}/../resources/01_default
 
 fi 
 ############################################ HUBBLE ############################################

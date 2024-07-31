@@ -45,7 +45,7 @@ echo "Waiting for Argo CD to be ready..."
 
 # Patch the argo-cd service to use NodePort
 echo "Setting up load balancing and configmap..."
-kubectl appy -f $SCRIPT_DIR/../resources/argo/
+kubectl apply -f $SCRIPT_DIR/../resources/argo/
 # kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}' > /dev/null
 
 # Restart the argocd server pod
