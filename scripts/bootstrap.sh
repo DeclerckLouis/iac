@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# This script will install k3s and cilium on a single node cluster.
-# This script is intended to be run on the master node.
-# It has only been tested on a raspberry pi 4 running ubuntu 22.04.
+# This script will install k3s and cilium on a control-plane node.
+# Alternatively, add control-plane and worker nodes to an existing cluster.
 
-# NOTE: I haven't gotten this to work on ubuntu 24.04, 
+# NOTE: It works on ubuntu 24.04 (both for x86_64 and arm64).
 
 ############################################ VARIABLES & FUNCTIONS ############################################
 
@@ -173,7 +172,6 @@ else
 
 fi
 
-
 # Install k3s
 echo "Setting up kubernetes..."
 # First Master node installation
@@ -298,6 +296,9 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
 
   echo "Cilium installed."
   echo "Done."
+
+  # Apply default resources (from the /resources/01_default folder)
+  kubectl apply -f ${SCRIPT_DIR}/../resources/01_default
 
 fi 
 ############################################ HUBBLE ############################################
