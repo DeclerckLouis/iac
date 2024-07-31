@@ -3,6 +3,10 @@
 # This script will install argo-cd on a k3s cluster
 # It has only been tested on a raspberry pi 4 running ubuntu 22.04.
 
+####################################### Variables #######################################
+# Get script directory (to find resources later)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
 # Set homedir variable based on user
 if [ $USER == "root" ]; then
     HOMEDIR=$(eval echo ~${SUDO_USER})
@@ -10,8 +14,11 @@ else
     HOMEDIR=$(eval echo ~${USER})
 fi
 
+# Set the architecture for the argo-cd binary
 ARGO_ARCH=amd64
 if [ "$(uname -m)" = "aarch64" ]; then ARGO_ARCH=arm64; fi
+
+####################################### Script #######################################
 
 clear
 
@@ -37,17 +44,14 @@ echo "Waiting for Argo CD to be ready..."
 # kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
 
 # Patch the argo-cd service to use NodePort
-echo "Patching Argo CD service to use NodePort..."
+echo "Setting up load balancing and configmap..."
+kubectl appy -f $SCRIPT_DIR/../resources/argo/
 # kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}' > /dev/null
-
-# Get the networking information
-# NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}' | cut -d ' ' -f 1)
-# NODE_PORT=$(kubectl get svc -n argocd argocd-server -o jsonpath="{.spec.ports[?(@.name=='https')].nodePort}")
 
 # Restart the argocd server pod
 echo "Restarting Argo CD server pod to appply changes..."
-# kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server > /dev/null
-# kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
+kubectl -n argocd delete pod -l app.kubernetes.io/name=argocd-server > /dev/null
+kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
 echo ""
 echo "Argo CD is ready."
 
