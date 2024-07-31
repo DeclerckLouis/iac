@@ -296,7 +296,16 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
 
   echo "Cilium installed."
   echo "Done."
+  
+  echo ""
+  echo "Waiting for Cilium to be ready..."
+  while ! cilium status --wait; do
+    echo "Cilium is not ready yet. Waiting..."
+    sleep 5
+  done
+  echo "Cilium is ready."
 
+  echo "Applying default resources..."
   # Apply default resources (from the /resources/01_default folder)
   kubectl apply -f ${SCRIPT_DIR}/../resources/01_default
 
