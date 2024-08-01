@@ -2,7 +2,7 @@
 ## Getting started
 ### First Installation
 To setup the project on your local machine, follow these steps:
-| **This has only been tested on a rpi4 running Ubuntu Server 22.04** |
+| **This has only been tested on a rpi5 running Ubuntu Server 22.04 and 24.04** |
 1. Clone the repository
 2. run the bootstrap.sh script `sudo bash iac/scripts/bootstrap.sh`  
 
@@ -30,28 +30,4 @@ network:
       nameservers:
         addresses: [your_dns]
   version: 2
-```
-
-#### Installing k3s
-To install k3s, run the following command:
-```bash
-openssl rand -hex 16 > k3s_token.txt
-curl -sfL https://get.k3s.io | K3s_token=$(cat k3s_token.txt) sh -s - --cluster-init --write-kubeconfig-mode 644 --flannel-backend=none --disable-network-policy
-```
-
-#### Install cilium
-This installation is taken from [the cilium documentation](https://docs.cilium.io/en/stable/installation/k3s/).  
-To install cilium, run the following commands:
-```bash
-# Download cilium cli
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=amd64
-if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
-sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
-
-# Install cilium
-cilium install --version 1.15.6 --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16"
 ```
