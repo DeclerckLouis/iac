@@ -301,7 +301,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   
   echo ""
   echo "Waiting for Cilium to be ready..."
-  while ! cilium status --wait; do
+  while ! cilium status --wait > /dev/null 2>&1; do
     echo "Cilium is not ready yet. Waiting..."
     sleep 5
   done
@@ -309,7 +309,7 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
 
   echo "Applying default resources..."
   # Apply default resources (from the /resources/01_default folder)
-  kubectl apply --save-config -f ${SCRIPT_DIR}/../resources/01_default
+  kubectl apply --server-side -f ${SCRIPT_DIR}/../resources/01_default
 
 fi 
 ############################################ HUBBLE ############################################
