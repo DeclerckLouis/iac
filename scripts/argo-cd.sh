@@ -40,7 +40,7 @@ openssl req -nodes -days 365  -new -newkey rsa:4096 -sha256 -x509 -keyout /tmp/a
 kubectl create namespace argocd
 
 # Create a k8s secret for the TLS cert and key
-kubectl create secret tls argocd-tls -n argocd --key /tmp/argocd.key --cert /tmp/argocd.crt
+kubectl create secret tls argocd-server-tls -n argocd --key /tmp/argocd.key --cert /tmp/argocd.crt
 
 # Apply the argo-cd manifests
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
