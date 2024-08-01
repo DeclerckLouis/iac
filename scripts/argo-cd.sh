@@ -32,8 +32,15 @@ echo "Installing Argo CD on k3s cluster..."
 echo "Argo CD initial password will be saved to ${HOMEDIR}/argocd_password.txt"
 sleep 1
 
+# Create TLS cert and key
+echo "Creating TLS cert and key..."
+openssl req -nodes -days 365  -new -newkey rsa:4096 -sha256 -x509 -keyout /tmp/argocd.key -out /tmp/argocd.crt -subj "/CN=argocd-server.argocd.svc"
+
 # Create a namespace for argo-cd
 kubectl create namespace argocd
+
+# Create a k8s secret for the TLS cert and key
+kubectl create secret tls argocd-tls -n argocd --key /tmp/argocd.key --cert /tmp/argocd.crt
 
 # Apply the argo-cd manifests
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
@@ -41,12 +48,11 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/st
 # Wait for argo-cd to be ready
 echo ""
 echo "Waiting for Argo CD to be ready..."
-# kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
+kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd > /dev/null
 
-# Patch the argo-cd service to use NodePort
+# Patch the argo-cd service to use the gateway API
 echo "Setting up load balancing and configmap..."
 kubectl apply -f $SCRIPT_DIR/../resources/argo/
-# kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}' > /dev/null
 
 # Restart the argocd server pod
 echo "Restarting Argo CD server pod to appply changes..."
@@ -62,7 +68,6 @@ echo "Done."
 
 echo ""
 echo ""
-#echo "You can now log in to Argo CD at https://${NODE_IP}:${NODE_PORT}"
 echo "The user credentials are as follows: "
 echo "Username: admin"
 echo "Password: $ARGOCDSECRET"
