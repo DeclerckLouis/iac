@@ -306,8 +306,6 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
     --set hubble.relay.enabled=true \
     --set hubble.ui.enabled=true \
     --set hubble.listenAddress=":4244" \
-    --set hubble.ui.service.type=NodePort \
-    --set hubble.ui.service.nodePort=32000 \
 
   echo "Cilium installed."
   echo "Done."
