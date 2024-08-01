@@ -1,4 +1,6 @@
-git clone git@github.com:ansible/awx-operator.git
+#!/bin/bash
+
+git clone https://github.com/ansible/awx-operator.git
 cd awx-operator
 git checkout tags/2.19.1
 
