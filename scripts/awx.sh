@@ -22,7 +22,6 @@ EOF
 kubectl apply -k .
 echo "wait 15 seconds"
 sleep 15
-kubectl config set-context --current --namespace=awx
 
 cat <<EOF > awx.yaml
 apiVersion: awx.ansible.com/v1beta1
@@ -49,5 +48,5 @@ images:
 namespace: awx
 EOF
 
-kubectl apply -k . 
-kubectl logs -f deployments/awx-operator-controller-manager -c awx-manager
+kubectl apply -k . -n awx
+kubectl logs -f deployments/awx-operator-controller-manager -c awx-manager -n awx
