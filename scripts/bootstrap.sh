@@ -232,7 +232,7 @@ fi
 ############################################ CILIUM ############################################
 
 if [ "$NODE_TYPE" = "initmaster" ]; then
-  echo "Installing Cilium..."
+  echo "Installing Cilium & Hubble..."
   # # CRDs for Gateway API (https://docs.cilium.io/en/stable/network/servicemesh/gateway-api/gateway-api/#gs-gateway-api)
   # # CRDs FOR 1.15.7
   # kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.0.0/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
@@ -260,6 +260,10 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   # helm upgrade cilium cilium/cilium
   export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
+  HUBBLE_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/hubble/master/stable.txt)
+  HUBBLE_ARCH=amd64
+  if [ "$(uname -m)" = "aarch64" ]; then HUBBLE_ARCH=arm64; fi
+
   CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
   CLI_ARCH=amd64
   if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
@@ -273,6 +277,12 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
   rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
   echo "Cilium CLI installed."
+
+  curl -L --fail --remote-name-all https://github.com/cilium/hubble/releases/download/$HUBBLE_VERSION/hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum}
+  sha256sum --check hubble-linux-${HUBBLE_ARCH}.tar.gz.sha256sum > /dev/null
+  sudo tar xzvfC hubble-linux-${HUBBLE_ARCH}.tar.gz /usr/local/bin
+  rm hubble-linux-${HUBBLE_ARCH}.tar.gz{,.sha256sum} > /dev/null
+  echo "Hubble CLI installed."
 
   # Install cilium 
   # CURRENT CILIUM VERSION: 1.16.0 -> SEE GITHUB RELEASES https://github.com/cilium/cilium/releases
