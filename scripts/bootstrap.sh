@@ -304,7 +304,10 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
     --set k8sServiceHost=${IP_ADDRESS} \
     --set k8sServicePort=6443 \
     --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
+    --set hubble.ui.enabled=true \
+    --set hubble.listenAddress=":4244" \
+    --set hubble.ui.service.type=NodePort \
+    --set hubble.ui.service.nodePort=32000 \
 
   echo "Cilium installed."
   echo "Done."
