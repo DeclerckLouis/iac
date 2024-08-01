@@ -5,7 +5,7 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      app: argocd-server
+      namespace: argocd
   ingress:
   - toPorts:
     - ports:
