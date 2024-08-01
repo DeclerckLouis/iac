@@ -4,7 +4,8 @@ git clone https://github.com/ansible/awx-operator.git
 cd awx-operator
 git checkout tags/2.19.1
 
-echo "apiVersion: kustomize.config.k8s.io/v1beta1
+cat <<EOF > kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # Find the latest tag here: https://github.com/ansible/awx-operator/releases
@@ -16,20 +17,22 @@ images:
     newTag: 2.19.1
 
 # Specify a custom namespace in which to install AWX
-namespace: awx" > kustomization.yaml
+namespace: awx
+EOF
 
 kubectl apply -k .
 echo "wait 15 seconds"
 sleep 15
 kubectl config set-context --current --namespace=awx
 
-echo "---
+cat <<EOF > awx.yaml
 apiVersion: awx.ansible.com/v1beta1
 kind: AWX
 metadata:
   name: awx-louis
 spec:
-  service_type: nodeport" > awx.yaml
+  service_type: nodeport
+EOF
 
 kubectl apply -k . 
 kubectl logs -f deployments/awx-operator-controller-manager -c awx-manager
