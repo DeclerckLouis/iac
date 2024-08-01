@@ -1,29 +1,37 @@
-apiVersion: "cilium.io/v2"
+apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: "l7-visibility"
+  name: allow-hubble-observe
+  namespace: argocd
 spec:
   endpointSelector:
     matchLabels:
-      "k8s:io.kubernetes.pod.namespace": argocd
-  egress:
-    - toEndpoints:
-        - matchLabels:
-            "k8s:io.kubernetes.pod.namespace": argocd
-      toPorts:
-        - ports:
-            - port: "8080"
-              protocol: ANY
-            - port: "80"
-              protocol: ANY
-            - port: "443"
-              protocol: ANY
+      k8s:io.kubernetes.pod.namespace: argocd
   ingress:
-  - toPorts:
+  - fromEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+        k8s:app: hubble-relay
+    toPorts:
     - ports:
-      - port: "8080"
-        protocol: ANY
       - port: "80"
-        protocol: ANY
+        protocol: TCP
       - port: "443"
-        protocol: ANY
+        protocol: TCP
+      rules:
+        http:
+        - {}
+  egress:
+  - toEndpoints:
+    - matchLabels:
+        k8s:io.kubernetes.pod.namespace: kube-system
+        k8s:app: hubble-relay
+    toPorts:
+    - ports:
+      - port: "80"
+        protocol: TCP
+      - port: "443"
+        protocol: TCP
+      rules:
+        http:
+        - {}
