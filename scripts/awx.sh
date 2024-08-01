@@ -29,7 +29,7 @@ kind: AWX
 metadata:
   name: awx-louis
 spec:
-  service_type: nodeport
+  service_type: LoadBalancer
 EOF
 
 cat <<EOF > kustomization.yaml
