@@ -9,5 +9,4 @@ spec:
   ingress:
   - toPorts:
     - ports:
-      - port: "*"
-        protocol: "*"
+      - protocol: "ANY"
