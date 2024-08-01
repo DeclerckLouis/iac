@@ -5,14 +5,9 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      "k8s-app": argocd-server
+      app: argocd-server
   ingress:
-  - toEndpoints:
-    - matchLabels:
-        "k8s-app": argocd-server
-    toPorts:
+  - toPorts:
     - ports:
       - port: "8080"
         protocol: TCP
-      rules:
-        http: [{}]
