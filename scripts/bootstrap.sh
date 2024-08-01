@@ -318,6 +318,8 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
   done
   echo "Cilium is ready."
 
+  cilium hubble port-forward &
+
   echo "Applying default resources..."
   # Apply default resources (from the /resources/01_default folder)
   kubectl apply --server-side -f ${SCRIPT_DIR}/../resources/01_default
