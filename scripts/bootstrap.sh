@@ -292,7 +292,9 @@ if [ "$NODE_TYPE" = "initmaster" ]; then
     --set k8sClientRateLimit.burst=60 \
     --set=ipam.operator.clusterPoolIPv4PodCIDRList="10.42.0.0/16" \
     --set k8sServiceHost=${IP_ADDRESS} \
-    --set k8sServicePort=6443
+    --set k8sServicePort=6443 \
+    --set hubble.relay.enabled=true \
+    --set hubble.ui.enabled=true
 
   echo "Cilium installed."
   echo "Done."
