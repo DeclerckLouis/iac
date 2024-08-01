@@ -5,8 +5,25 @@ metadata:
 spec:
   endpointSelector:
     matchLabels:
-      namespace: argocd
+      "k8s:io.kubernetes.pod.namespace": argocd
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            "k8s:io.kubernetes.pod.namespace": argocd
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: ANY
+            - port: "80"
+              protocol: ANY
+            - port: "443"
+              protocol: ANY
   ingress:
   - toPorts:
     - ports:
-      - protocol: "ANY"
+      - port: "8080"
+        protocol: ANY
+      - port: "80"
+        protocol: ANY
+      - port: "443"
+        protocol: ANY
